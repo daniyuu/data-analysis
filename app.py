@@ -10,6 +10,7 @@ matplotlib.rcParams["axes.unicode_minus"] = False  # 正常显示负号
 import seaborn as sns
 import uuid
 import base64
+import datetime
 
 client = gpt_client
 
@@ -17,31 +18,8 @@ client = gpt_client
 cl.instrument_openai()
 
 
-@cl.step(type="tool")
-def save_file(elements):
-    schema = []
-    for element in elements:
-        if element.type == "file":
-            file_path = element.path
-            df = pd.read_csv(file_path, nrows=0)
-            schema = [(col, str(dtype)) for col, dtype in zip(df.columns, df.dtypes)]
-            break
-    return schema
-
-
-@cl.step(type="tool")
-def read_data_schema(elements):
-    schema = []
-    for element in elements:
-        if element.type == "file":
-            file_path = element.path
-            df = pd.read_csv(file_path, nrows=0)
-            schema = [(col, str(dtype)) for col, dtype in zip(df.columns, df.dtypes)]
-            break
-    return schema
-
-
 # 自动生成图表并保存为图片，返回图片路径列表
+@cl.step(type="tool")
 def generate_charts(file_path, output_dir="charts"):
     df = pd.read_csv(file_path)
     img_paths = []
@@ -156,6 +134,60 @@ def generate_charts(file_path, output_dir="charts"):
     return img_paths
 
 
+def generate_html_report(
+    img_paths, explanations, summary, output_path="analysis_report.html"
+):
+    # 图片转base64
+    img_html = ""
+    for img_path, explain in zip(img_paths, explanations):
+        with open(img_path, "rb") as f:
+            img_b64 = base64.b64encode(f.read()).decode("utf-8")
+        img_html += f"""
+        <div class="chart-block">
+            <img src="data:image/png;base64,{img_b64}" class="chart-img"/>
+            <div class="chart-explain">{explain}</div>
+        </div>
+        """
+    now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    html = f"""
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <title>数据分析报告</title>
+        <style>
+            body {{ font-family: 'Microsoft YaHei', Arial, sans-serif; background: #f5f7fa; color: #222; }}
+            .container {{ max-width: 900px; margin: 40px auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 12px #ccc; padding: 32px; }}
+            h1 {{ text-align: center; color: #2b6cb0; }}
+            .summary {{ background: #e6f7ff; border-left: 6px solid #1890ff; padding: 16px; margin-bottom: 32px; border-radius: 8px; }}
+            .chart-block {{ margin-bottom: 36px; background: #f9f9f9; border-radius: 8px; padding: 16px; box-shadow: 0 1px 4px #eee; }}
+            .chart-img {{ max-width: 100%; border-radius: 6px; display: block; margin: 0 auto 12px auto; }}
+            .chart-explain {{ color: #444; font-size: 1.05em; background: #f0f5ff; border-radius: 6px; padding: 10px; }}
+            .footer {{ text-align: right; color: #888; font-size: 0.95em; margin-top: 40px; }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>数据分析报告</h1>
+            <div class="summary">
+                <strong>综合结论：</strong><br>
+                {summary}
+            </div>
+            {img_html}
+            <div class="footer">报告生成时间：{now}</div>
+        </div>
+    </body>
+    </html>
+    """
+    os.makedirs(os.path.join(os.path.dirname(__file__), "reports"), exist_ok=True)
+    now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    output_path = os.path.join(
+        os.path.dirname(__file__), "reports", f"analysis_report_{now}.html"
+    )
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write(html)
+    return output_path
+
+
 @cl.on_message  # this function will be called every time a user inputs a message in the UI
 async def main(message: cl.Message):
     """
@@ -221,6 +253,12 @@ async def main(message: cl.Message):
         )
         summary = summary_response.choices[0].message.content
         await cl.Message(content=f"整体分析结论：{summary}").send()
+        # 生成HTML报告并发送下载链接
+        report_path = generate_html_report(all_img_paths, all_explanations, summary)
+        await cl.Message(
+            content=f"🎉 <b>分析报告已生成！</b> <br> <a href='{report_path}' download>点击下载报告</a>",
+            elements=[cl.File(name="analysis_report.html", path=report_path)],
+        ).send()
     else:
         # 没有文件，正常AI问答
         response = await client.chat.completions.create(
