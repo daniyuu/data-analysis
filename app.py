@@ -1,6 +1,6 @@
 import chainlit as cl
 import pandas as pd
-from config import gpt_client
+from config import gpt_client, AZURE_DEPLOYMENT_NAME
 import os
 import matplotlib.pyplot as plt
 import matplotlib
@@ -179,7 +179,7 @@ def generate_html_report(
     </html>
     """
     os.makedirs(os.path.join(os.path.dirname(__file__), "reports"), exist_ok=True)
-    now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    now = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     output_path = os.path.join(
         os.path.dirname(__file__), "reports", f"analysis_report_{now}.html"
     )
@@ -233,7 +233,7 @@ async def main(message: cl.Message):
                     },
                 ]
                 response = await client.chat.completions.create(
-                    model="gpt-4o-mini",
+                    model=AZURE_DEPLOYMENT_NAME,
                     messages=explain_prompt,
                 )
                 explanation = response.choices[0].message.content
@@ -248,7 +248,7 @@ async def main(message: cl.Message):
             {"role": "user", "content": "\n".join(all_explanations)},
         ]
         summary_response = await client.chat.completions.create(
-            model="gpt-4o-mini",
+            model=AZURE_DEPLOYMENT_NAME,
             messages=summary_prompt,
         )
         summary = summary_response.choices[0].message.content
@@ -262,7 +262,7 @@ async def main(message: cl.Message):
     else:
         # 没有文件，正常AI问答
         response = await client.chat.completions.create(
-            model="gpt-4o-mini",
+            model=AZURE_DEPLOYMENT_NAME,
             messages=[
                 {
                     "content": "You are an agent that can help with data analysis and visualization.",
