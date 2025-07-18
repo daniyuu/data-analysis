@@ -208,3 +208,5 @@ __marimo__/
 .files/
 .chainlit/
 charts/
+reports/
+examples/
