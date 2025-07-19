@@ -16,6 +16,18 @@
                 "-w"
             ],
             "console": "integratedTerminal"
+        },
+        {
+            "name": "Chainlit Run Demo",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "chainlit",
+            "args": [
+                "run",
+                "${workspaceFolder}/demo.py",
+                "-w"
+            ],
+            "console": "integratedTerminal"
         }
     ]
 }
