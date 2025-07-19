@@ -19,6 +19,10 @@ app = Sanic("data-analysis-api")
 # 配置上传文件大小限制 (50MB)
 app.config.REQUEST_MAX_SIZE = 50 * 1024 * 1024
 
+# 配置请求超时时间 (5分钟)
+app.config.REQUEST_TIMEOUT = 300
+app.config.RESPONSE_TIMEOUT = 300
+
 
 @app.route("/", methods=["GET"])
 async def index(request: Request):
@@ -29,6 +33,8 @@ async def index(request: Request):
             "version": "1.0.0",
             "endpoints": {
                 "/analyze": "POST - 上传Excel文件进行分析",
+                "/analyze/download": "POST - 上传Excel文件并返回下载链接",
+                "/download/<filename>": "GET - 下载生成的报告",
                 "/health": "GET - 健康检查",
             },
         }
@@ -222,11 +228,15 @@ async def download_report(request: Request, filename: str):
     - filename: 报告文件名
     """
     try:
-        # 构建报告文件路径
-        reports_dir = os.path.join(
-            os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "reports"
-        )
+        # 构建报告文件路径 - 修复路径问题
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        reports_dir = os.path.join(current_dir, "reports")
         file_path = os.path.join(reports_dir, filename)
+
+        print(f"Looking for file: {file_path}")
+        print(f"File exists: {os.path.exists(file_path)}")
+        print(f"Current directory: {current_dir}")
+        print(f"Reports directory: {reports_dir}")
 
         # 检查文件是否存在
         if not os.path.exists(file_path):
@@ -239,6 +249,7 @@ async def download_report(request: Request, filename: str):
         return await file(file_path, filename=filename)
 
     except Exception as e:
+        print(f"下载文件时出错: {str(e)}")
         return json(
             {"error": "下载失败", "message": f"下载文件时发生错误: {str(e)}"},
             status=500,
