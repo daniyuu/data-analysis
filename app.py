@@ -256,13 +256,13 @@ async def download_report(request: Request, filename: str):
         )
 
 
-if __name__ == "__main__":
-    # 检测是否在Azure环境中
-    port = int(os.environ.get("PORT", 8000))
-    host = "0.0.0.0" if os.environ.get("WEBSITE_HOSTNAME") else "0.0.0.0"
+# if __name__ == "__main__":
+#     # 检测是否在Azure环境中
+#     port = int(os.environ.get("PORT", 8000))
+#     host = "0.0.0.0" if os.environ.get("WEBSITE_HOSTNAME") else "0.0.0.0"
 
-    print(f"Starting server on {host}:{port}")
-    print(f"Environment: {'Azure' if os.environ.get('WEBSITE_HOSTNAME') else 'Local'}")
+#     print(f"Starting server on {host}:{port}")
+#     print(f"Environment: {'Azure' if os.environ.get('WEBSITE_HOSTNAME') else 'Local'}")
 
-    # 启动服务器
-    app.run(host=host, port=port, debug=False, access_log=True)
+#     # 启动服务器
+#     app.run(host=host, port=port, debug=False, access_log=True)
