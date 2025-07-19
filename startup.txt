@@ -1,8 +1,0 @@
-# 方案1: 直接使用 Sanic (推荐)
-python app.py
-
-# 方案2: 使用 gunicorn 配合 Sanic
-gunicorn app:app --bind 0.0.0.0:8000 --worker-class sanic.worker.GunicornWorker --timeout 600
-
-# 方案3: 如果方案2不行，使用标准 gunicorn
-gunicorn app:app --bind 0.0.0.0:8000 --timeout 600 --workers 1 

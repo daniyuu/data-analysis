@@ -5,4 +5,6 @@ chainlit>=0.7.0
 openai>=1.0.0
 gunicorn>=21.0.0
 python-dotenv>=1.0.0
-uvicorn>=0.20.0 
+uvicorn>=0.20.0
+requests>=2.25.0
+aiofiles>=0.8.0 

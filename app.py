@@ -14,7 +14,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 # 导入分析模块
 from core.analysis import generate_html_from_excel
 
-app = Sanic("data-analysis-api")
+app = Sanic("app")
 
 # 配置上传文件大小限制 (50MB)
 app.config.REQUEST_MAX_SIZE = 50 * 1024 * 1024
