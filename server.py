@@ -1,6 +1,9 @@
 from sanic import Sanic, Request, response
 from sanic.response import json, file
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 import sys
 import tempfile
 from datetime import datetime
@@ -11,7 +14,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 # 导入分析模块
 from core.analysis import generate_html_from_excel
 
-app = Sanic("excel_analysis_api")
+app = Sanic("data-analysis-api")
 
 # 配置上传文件大小限制 (50MB)
 app.config.REQUEST_MAX_SIZE = 50 * 1024 * 1024
@@ -39,7 +42,7 @@ async def health_check(request: Request):
         {
             "status": "healthy",
             "timestamp": datetime.now().isoformat(),
-            "service": "excel_analysis_api",
+            "service": "data-analysis-api",
         }
     )
 

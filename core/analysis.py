@@ -2,7 +2,7 @@ import pandas as pd
 import os
 from dotenv import load_dotenv
 
-load_dotenv(r"C:\Users\yueyingchen\source\repos\data-analysis\.env")
+load_dotenv()
 import datetime
 import sys
 
@@ -218,6 +218,4 @@ def analyze_excel_sync(excel_path):
 
 
 if __name__ == "__main__":
-    analyze_excel_sync(
-        r"C:\Users\yueyingchen\source\repos\data-analysis\examples\授信数据mock.xlsx"
-    )
+    analyze_excel_sync("examples/授信数据mock.xlsx")

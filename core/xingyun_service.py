@@ -9,7 +9,7 @@ import json
 import os
 from dotenv import load_dotenv
 
-load_dotenv(r"C:\Users\yueyingchen\source\repos\data-analysis\.env")
+load_dotenv()
 
 from typing import Dict, List, Optional
 from datetime import datetime
