@@ -3,9 +3,9 @@ import time
 from datetime import datetime
 
 
-def test_azure_api():
+def test_azure_api(host):
     """Test the Azure API with detailed debugging"""
-    base_url = "http://127.0.0.1:8000"
+    base_url = host
     # base_url = (
     #     "https://data-analysis-0719-crhmezfyhmfwcjhq.canadacentral-01.azurewebsites.net"
     # )
@@ -123,9 +123,9 @@ def test_azure_api():
     print("Test completed!")
 
 
-def test_analyze_by_file_url():
+def test_analyze_by_file_url(host):
     """测试通过文件URL分析Excel文件"""
-    url = "http://localhost:8000/analyze_by_file_url"
+    url = f"{host}/analyze_by_file_url"
 
     # 使用一个公开的Excel文件URL进行测试
     # 这里使用一个示例URL，实际使用时需要替换为真实的Excel文件URL
@@ -156,9 +156,13 @@ def test_analyze_by_file_url():
 
 
 if __name__ == "__main__":
-    # test_azure_api()
+    # host = "http://localhost:8000"
+    host = (
+        "https://data-analysis-0719-crhmezfyhmfwcjhq.canadacentral-01.azurewebsites.net"
+    )
+    # test_azure_api(host)
 
     # 测试新的 analyze_by_file_url 接口
     print("\n" + "=" * 50)
     print("Testing analyze_by_file_url endpoint...")
-    test_analyze_by_file_url()
+    test_analyze_by_file_url(host)
