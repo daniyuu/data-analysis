@@ -176,6 +176,8 @@ async def analyze_by_file_url(request: Request):
                 json_data = request.json
                 file_url = json_data.get("file_url")
                 file_name = json_data.get("file_name")
+                analysis_prompt = json_data.get("analysis_prompt")
+                user_content = json_data.get("user_content")
                 uid = json_data.get("uid")
             except Exception as e:
                 return json(
@@ -189,6 +191,8 @@ async def analyze_by_file_url(request: Request):
             # 表单数据格式
             file_url = request.form.get("file_url")
             file_name = request.form.get("file_name")
+            analysis_prompt = request.form.get("analysis_prompt")
+            user_content = request.form.get("user_content")
             uid = request.form.get("uid")
 
         if not file_url or not file_name:
@@ -236,7 +240,9 @@ async def analyze_by_file_url(request: Request):
 
         try:
             # 使用demo.py中的函数生成HTML报告
-            html_report_path = await generate_html_from_excel(temp_file_path, uid)
+            html_report_path = await generate_html_from_excel(
+                temp_file_path, uid, analysis_prompt, user_content
+            )
 
             # 获取文件名
             report_filename = os.path.basename(html_report_path)

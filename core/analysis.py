@@ -12,6 +12,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 # 导入配置
 from core.xingyun_service import XingyunService
 from config import REPORT_DIR
+from core.prompt import DEFAULT_ANALYSIS_PROMPT
 
 client = XingyunService(api_key=os.getenv("XINGYUN_API_KEY"))
 
@@ -111,7 +112,9 @@ def clean_dataframe(df):
     return df_clean
 
 
-async def generate_html_from_excel(excel_path, uid=None):
+async def generate_html_from_excel(
+    excel_path, chat_id, analysis_prompt=None, user_content=None
+):
     """
     从Excel文件生成HTML分析报告
 
@@ -130,40 +133,31 @@ async def generate_html_from_excel(excel_path, uid=None):
         # 将数据转换为CSV格式的字符串，方便发送给大模型
         csv_data = df.to_csv(index=False, encoding="utf-8")
 
+        analysis_prompt = (
+            analysis_prompt if analysis_prompt else DEFAULT_ANALYSIS_PROMPT
+        )
+
         # 构建分析prompt
-        analysis_prompt = f"""##任务
-你是一个面向公司资金财务人员的智能数据分析助手。当用户上传任意Excel表格后，请：
-1. 智能分析表格中的数据内容，识别主要的变量、指标和数据维度。
-2. 自动推荐2-4种最适合用来可视化本次数据的图表类型（如柱状图、折线图、饼图、散点图等），并简要说明推荐理由。
-3. 使用HTML和CSS代码生成数据可视化图表，确保图表直观清晰，能为财务管理与决策提供有效支持。如遇表头不清或数据有歧义，请合理假设并在结果中注明。
 
-##要求
-最后输出应包含：
-1. 数据主要内容和发现的简要总结
-2. 图表类型推荐及理由说明
-3. 使用HTML+CSS+JavaScript生成的可视化图表（不要使用图片，要用代码绘制）
-
-##输出格式
-所有的输出全部使用一个html网页输出，图表必须用HTML/CSS/JavaScript代码实现，不要生成图片文件。
-
-##图表要求
-- 使用HTML表格、CSS样式和JavaScript来创建图表
-- 可以使用Chart.js、D3.js或其他JavaScript图表库
-- 图表要响应式，适配不同屏幕尺寸
-- 颜色搭配要专业美观
-- 数据标签要清晰可读
-
-##数据内容
+        if user_content:
+            prompt = f"""{analysis_prompt}
+## 示例数据
 以下是Excel文件的数据内容（CSV格式）：
 {csv_data}
+请根据以上数据以及用户问题进行分析并生成HTML报告，确保所有图表都是用代码实现的，不要使用图片。
 
+## 用户问题
+{user_content}
+"""
+        else:
+            prompt = f"""{analysis_prompt}
+## 示例数据
+以下是Excel文件的数据内容（CSV格式）：
+{csv_data}
 请根据以上数据进行分析并生成HTML报告，确保所有图表都是用代码实现的，不要使用图片。"""
 
-        # 发送给大模型进行分析
-        chat_id = uid if uid else "test_chat_001"
-
         response = client.chat_with_text(
-            text=analysis_prompt,
+            text=prompt,
             chat_id=chat_id,
         )
 
