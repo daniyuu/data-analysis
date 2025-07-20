@@ -11,6 +11,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # 导入配置
 from core.xingyun_service import XingyunService
+from config import REPORT_DIR
 
 client = XingyunService(api_key=os.getenv("XINGYUN_API_KEY"))
 
@@ -180,11 +181,7 @@ async def generate_html_from_excel(excel_path, uid=None):
 
         # 保存HTML报告
         now = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        report_path = os.path.join(
-            os.path.dirname(os.path.dirname(__file__)),
-            "reports",
-            f"ai_analysis_report_{now}.html",
-        )
+        report_path = os.path.join(REPORT_DIR, f"ai_analysis_report_{now}.html")
         os.makedirs(os.path.dirname(report_path), exist_ok=True)
 
         with open(report_path, "w", encoding="utf-8") as f:
