@@ -129,14 +129,17 @@ def test_analyze_by_file_url(host):
 
     # 使用一个公开的Excel文件URL进行测试
     # 这里使用一个示例URL，实际使用时需要替换为真实的Excel文件URL
-    data = {
+    json_data = {
         "file_url": "https://raw.githubusercontent.com/pandas-dev/pandas/main/pandas/tests/io/data/excel/test1.xlsx",
         "file_name": "test1.xlsx",  # 确保文件名包含正确的扩展名
         "uid": "test_user_123",
     }
 
     try:
-        response = requests.post(url, data=data)
+        # 发送JSON格式的请求
+        response = requests.post(
+            url, json=json_data, headers={"Content-Type": "application/json"}
+        )
         print(f"Status Code: {response.status_code}")
         print(f"Response Headers: {dict(response.headers)}")
 
@@ -156,10 +159,10 @@ def test_analyze_by_file_url(host):
 
 
 if __name__ == "__main__":
-    host = "http://localhost:8000"
-    # host = (
-    #     "https://data-analysis-0719-crhmezfyhmfwcjhq.canadacentral-01.azurewebsites.net"
-    # )
+    # host = "http://localhost:8000"
+    host = (
+        "https://data-analysis-0719-crhmezfyhmfwcjhq.canadacentral-01.azurewebsites.net"
+    )
     # test_azure_api(host)
 
     # 测试新的 analyze_by_file_url 接口

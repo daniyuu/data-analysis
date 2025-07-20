@@ -36,7 +36,7 @@ async def index(request: Request):
             "endpoints": {
                 "/analyze": "POST - 上传Excel文件进行分析 (参数: file, uid可选)",
                 "/analyze/download": "POST - 上传Excel文件并返回下载链接 (参数: file, uid可选)",
-                "/analyze_by_file_url": "POST - 通过文件URL分析Excel文件 (参数: file_url, file_name, uid可选)",
+                "/analyze_by_file_url": "POST - 通过文件URL分析Excel文件 (支持JSON和表单数据格式，参数: file_url, file_name, uid可选)",
                 "/download/<filename>": "GET - 下载生成的报告",
                 "/health": "GET - 健康检查",
             },
@@ -245,6 +245,10 @@ async def analyze_by_file_url(request: Request):
     """
     通过文件URL分析Excel文件
 
+    支持两种请求格式:
+    1. JSON格式 (Content-Type: application/json)
+    2. 表单数据格式 (Content-Type: application/x-www-form-urlencoded)
+
     请求参数:
     - file_url: 文件的URL
     - file_name: 文件名
@@ -255,9 +259,27 @@ async def analyze_by_file_url(request: Request):
     - 失败: 错误信息
     """
     try:
-        file_url = request.form.get("file_url")
-        file_name = request.form.get("file_name")
-        uid = request.form.get("uid")
+        # 支持JSON和表单数据两种格式
+        if request.content_type and "application/json" in request.content_type:
+            # JSON格式
+            try:
+                json_data = request.json
+                file_url = json_data.get("file_url")
+                file_name = json_data.get("file_name")
+                uid = json_data.get("uid")
+            except Exception as e:
+                return json(
+                    {
+                        "error": "JSON格式错误",
+                        "message": f"无法解析JSON数据: {str(e)}",
+                    },
+                    status=400,
+                )
+        else:
+            # 表单数据格式
+            file_url = request.form.get("file_url")
+            file_name = request.form.get("file_name")
+            uid = request.form.get("uid")
 
         if not file_url or not file_name:
             return json(
