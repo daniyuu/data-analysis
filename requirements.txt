@@ -8,3 +8,5 @@ openpyxl
 python-dotenv
 requests
 aiofiles
+gunicorn
+uvicorn

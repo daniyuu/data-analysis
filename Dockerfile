@@ -7,15 +7,13 @@ WORKDIR /app
 # 3. 安装系统依赖（如有 C 扩展编译需求）
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# 4. 拷贝 requirements.txt 和本地已下载的 wheels
+# 4. 拷贝 requirements.txt
 COPY requirements.txt .
-COPY wheels/ ./wheels/
 
-# 5. 从本地安装 Python 依赖，避免 PyPI 网络问题
-RUN pip install --no-cache-dir --find-links=./wheels -r requirements.txt
+# 5. 从清华源安装 Python 依赖，避免 PyPI 网络问题
+RUN pip install --no-cache-dir -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 # 6. 拷贝剩余代码
 COPY . .
