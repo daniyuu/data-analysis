@@ -5,10 +5,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug App.py",
+            "name": "Debug Server.py",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/app.py",
+            "program": "${workspaceFolder}/server.py",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
             "env": {

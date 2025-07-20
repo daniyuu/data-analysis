@@ -272,11 +272,3 @@ async def download_report(request: Request, filename: str):
             {"error": "下载失败", "message": f"下载文件时发生错误: {str(e)}"},
             status=500,
         )
-
-
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8000))
-    host = "0.0.0.0"
-
-    # 启动服务器
-    app.run(host=host, port=port, debug=False, access_log=True)

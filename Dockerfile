@@ -5,21 +5,18 @@ FROM python:3.11.9-slim
 WORKDIR /app
 
 # Add Debian security repository
-RUN echo "deb http://security.debian.org/debian-security bookworm-security main" >> /etc/apt/sources.list && \
-    apt-get update && \
-    apt-get install -y && \
-    rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y
 
 # Copy the requirements file to install dependencies.
 COPY requirements.txt .
 
 # Install Python dependencies.
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install -i https://pypi.tuna.tsinghua.edu.cn/simple --no-cache-dir -r requirements.txt
 
 # Copy the rest of the application code.
 COPY . .
 
-EXPOSE 8001
+EXPOSE 8000
 
 # Command to run the server.
-CMD ["python", "app.py"]
+CMD ["python", "server.py"]
