@@ -4,10 +4,10 @@ import time
 
 def test_azure_api():
     """Test the Azure API with detailed debugging"""
-    base_url = "http://localhost:8000"
-    # base_url = (
-    #     "http://data-analysis-0719-crhmezfyhmfwcjhq.canadacentral-01.azurewebsites.net"
-    # )
+    # base_url = "http://127.0.0.1:8000"
+    base_url = (
+        "http://data-analysis-0719-crhmezfyhmfwcjhq.canadacentral-01.azurewebsites.net"
+    )
 
     print("Testing Azure API Server")
     print("=" * 50)
