@@ -142,6 +142,7 @@ def test_analyze_by_file_url(host):
         )
         print(f"Status Code: {response.status_code}")
         print(f"Response Headers: {dict(response.headers)}")
+        print(f"Response: {response.json()}")
 
         if response.status_code == 200:
             # 保存返回的HTML文件
