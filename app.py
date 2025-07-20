@@ -7,6 +7,8 @@ load_dotenv()
 import sys
 import tempfile
 from datetime import datetime
+import requests
+import urllib.parse
 
 # 添加项目根目录到Python路径
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -34,6 +36,7 @@ async def index(request: Request):
             "endpoints": {
                 "/analyze": "POST - 上传Excel文件进行分析 (参数: file, uid可选)",
                 "/analyze/download": "POST - 上传Excel文件并返回下载链接 (参数: file, uid可选)",
+                "/analyze_by_file_url": "POST - 通过文件URL分析Excel文件 (参数: file_url, file_name, uid可选)",
                 "/download/<filename>": "GET - 下载生成的报告",
                 "/health": "GET - 健康检查",
             },
@@ -230,6 +233,103 @@ async def analyze_excel_download(request: Request):
     except Exception as e:
         # 记录错误日志
         print(f"分析Excel文件时出错: {str(e)}")
+
+        return json(
+            {"error": "分析失败", "message": f"处理文件时发生错误: {str(e)}"},
+            status=500,
+        )
+
+
+@app.route("/analyze_by_file_url", methods=["POST"])
+async def analyze_by_file_url(request: Request):
+    """
+    通过文件URL分析Excel文件
+
+    请求参数:
+    - file_url: 文件的URL
+    - file_name: 文件名
+    - uid: 用户ID（可选，用于区分不同的聊天会话，如果不提供将自动生成）
+
+    返回:
+    - 成功: HTML分析报告文件
+    - 失败: 错误信息
+    """
+    try:
+        file_url = request.form.get("file_url")
+        file_name = request.form.get("file_name")
+        uid = request.form.get("uid")
+
+        if not file_url or not file_name:
+            return json(
+                {
+                    "error": "文件URL或文件名缺失",
+                    "message": "请提供file_url和file_name参数",
+                },
+                status=400,
+            )
+
+        if not uid:
+            import uuid
+
+            uid = f"user_{uuid.uuid4().hex[:8]}"
+            print(f"Generated uid: {uid}")
+
+        # 检查文件扩展名
+        file_extension = os.path.splitext(file_name)[1].lower()
+        if file_extension not in [".xlsx", ".xls"]:
+            return json(
+                {
+                    "error": "不支持的文件格式",
+                    "message": "只支持Excel文件格式(.xlsx或.xls)",
+                },
+                status=400,
+            )
+
+        # 下载文件到临时目录，使用传入的文件名
+        with tempfile.NamedTemporaryFile(
+            delete=False, suffix=file_extension
+        ) as temp_file:
+            response = requests.get(file_url, stream=True)
+            if response.status_code != 200:
+                return json(
+                    {
+                        "error": "文件下载失败",
+                        "message": f"从URL下载文件失败: {response.status_code}",
+                    },
+                    status=500,
+                )
+            for chunk in response.iter_content(chunk_size=8192):
+                temp_file.write(chunk)
+            temp_file_path = temp_file.name
+
+        try:
+            # 使用demo.py中的函数生成HTML报告
+            html_report_path = await generate_html_from_excel(temp_file_path, uid)
+
+            # 读取生成的HTML文件
+            with open(html_report_path, "r", encoding="utf-8") as f:
+                html_content = f.read()
+
+            # 获取文件名
+            report_filename = os.path.basename(html_report_path)
+
+            # 返回HTML文件
+            return response.html(
+                html_content,
+                headers={
+                    "Content-Disposition": f'attachment; filename="{report_filename}"',
+                    "Content-Type": "text/html; charset=utf-8",
+                },
+            )
+
+        finally:
+            # 清理临时文件
+            if os.path.exists(temp_file_path):
+                os.unlink(temp_file_path)
+
+    except Exception as e:
+        # 记录错误日志
+        print(f"通过URL分析Excel文件时出错: {str(e)}")
 
         return json(
             {"error": "分析失败", "message": f"处理文件时发生错误: {str(e)}"},

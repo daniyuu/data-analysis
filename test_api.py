@@ -1,13 +1,14 @@
 import requests
 import time
+from datetime import datetime
 
 
 def test_azure_api():
     """Test the Azure API with detailed debugging"""
-    # base_url = "http://127.0.0.1:8000"
-    base_url = (
-        "http://data-analysis-0719-crhmezfyhmfwcjhq.canadacentral-01.azurewebsites.net"
-    )
+    base_url = "http://127.0.0.1:8000"
+    # base_url = (
+    #     "https://data-analysis-0719-crhmezfyhmfwcjhq.canadacentral-01.azurewebsites.net"
+    # )
 
     print("Testing Azure API Server")
     print("=" * 50)
@@ -122,5 +123,42 @@ def test_azure_api():
     print("Test completed!")
 
 
+def test_analyze_by_file_url():
+    """测试通过文件URL分析Excel文件"""
+    url = "http://localhost:8000/analyze_by_file_url"
+
+    # 使用一个公开的Excel文件URL进行测试
+    # 这里使用一个示例URL，实际使用时需要替换为真实的Excel文件URL
+    data = {
+        "file_url": "https://raw.githubusercontent.com/pandas-dev/pandas/main/pandas/tests/io/data/excel/test1.xlsx",
+        "file_name": "test1.xlsx",  # 确保文件名包含正确的扩展名
+        "uid": "test_user_123",
+    }
+
+    try:
+        response = requests.post(url, data=data)
+        print(f"Status Code: {response.status_code}")
+        print(f"Response Headers: {dict(response.headers)}")
+
+        if response.status_code == 200:
+            # 保存返回的HTML文件
+            filename = (
+                f"report_from_url_{datetime.now().strftime('%Y%m%d_%H%M%S')}.html"
+            )
+            with open(filename, "wb") as f:
+                f.write(response.content)
+            print(f"HTML报告已保存为: {filename}")
+        else:
+            print(f"Error: {response.text}")
+
+    except Exception as e:
+        print(f"测试失败: {str(e)}")
+
+
 if __name__ == "__main__":
-    test_azure_api()
+    # test_azure_api()
+
+    # 测试新的 analyze_by_file_url 接口
+    print("\n" + "=" * 50)
+    print("Testing analyze_by_file_url endpoint...")
+    test_analyze_by_file_url()

@@ -13,7 +13,7 @@ RUN apt-get update && \
 COPY requirements.txt .
 
 # 5. 从清华源安装 Python 依赖，避免 PyPI 网络问题
-RUN pip install --no-cache-dir -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip install --no-cache-dir -r requirements.txt
 
 # 6. 拷贝剩余代码
 COPY . .
