@@ -110,12 +110,13 @@ def clean_dataframe(df):
     return df_clean
 
 
-async def generate_html_from_excel(excel_path):
+async def generate_html_from_excel(excel_path, uid=None):
     """
     从Excel文件生成HTML分析报告
 
     Args:
         excel_path (str): Excel文件路径
+        uid (str): 用户ID，用作chat_id
 
     Returns:
         str: 生成的HTML文件路径
@@ -158,10 +159,11 @@ async def generate_html_from_excel(excel_path):
 请根据以上数据进行分析并生成HTML报告，确保所有图表都是用代码实现的，不要使用图片。"""
 
         # 发送给大模型进行分析
+        chat_id = uid if uid else "test_chat_001"
 
         response = client.chat_with_text(
             text=analysis_prompt,
-            chat_id="test_chat_001",
+            chat_id=chat_id,
         )
 
         # 获取大模型的HTML输出
@@ -194,12 +196,13 @@ async def generate_html_from_excel(excel_path):
         raise Exception(f"生成HTML报告失败: {str(e)}")
 
 
-def analyze_excel_sync(excel_path):
+def analyze_excel_sync(excel_path, uid=None):
     """
     同步版本的Excel分析函数（用于非异步环境）
 
     Args:
         excel_path (str): Excel文件路径
+        uid (str): 用户ID，用作chat_id
 
     Returns:
         tuple: (success, result_or_error_message)
@@ -210,7 +213,7 @@ def analyze_excel_sync(excel_path):
         # 在事件循环中运行异步函数
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        result = loop.run_until_complete(generate_html_from_excel(excel_path))
+        result = loop.run_until_complete(generate_html_from_excel(excel_path, uid))
         loop.close()
         return True, result
     except Exception as e:

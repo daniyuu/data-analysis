@@ -14,7 +14,7 @@ RUN echo "deb http://security.debian.org/debian-security bookworm-security main"
 COPY requirements.txt .
 
 # Install Python dependencies.
-RUN pip install --no-cache-dir -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the rest of the application code.
 COPY . .

@@ -4,30 +4,29 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-
         {
-            "name": "Chainlit Run App",
+            "name": "Debug App.py",
             "type": "debugpy",
             "request": "launch",
-            "module": "chainlit",
-            "args": [
-                "run",
-                "${workspaceFolder}/app.py",
-                "-w"
-            ],
-            "console": "integratedTerminal"
+            "program": "${workspaceFolder}/app.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            },
+            "args": []
         },
         {
-            "name": "Chainlit Run Demo",
+            "name": "Debug Test API",
             "type": "debugpy",
             "request": "launch",
-            "module": "chainlit",
-            "args": [
-                "run",
-                "${workspaceFolder}/demo.py",
-                "-w"
-            ],
-            "console": "integratedTerminal"
-        }
+            "program": "${workspaceFolder}/test_api.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            },
+            "args": []
+        },
     ]
 }

@@ -32,8 +32,8 @@ async def index(request: Request):
             "message": "Excel分析API服务",
             "version": "1.0.0",
             "endpoints": {
-                "/analyze": "POST - 上传Excel文件进行分析",
-                "/analyze/download": "POST - 上传Excel文件并返回下载链接",
+                "/analyze": "POST - 上传Excel文件进行分析 (参数: file, uid可选)",
+                "/analyze/download": "POST - 上传Excel文件并返回下载链接 (参数: file, uid可选)",
                 "/download/<filename>": "GET - 下载生成的报告",
                 "/health": "GET - 健康检查",
             },
@@ -60,6 +60,7 @@ async def analyze_excel(request: Request):
 
     请求参数:
     - file: Excel文件 (.xlsx 或 .xls)
+    - uid: 用户ID（可选，用于区分不同的聊天会话，如果不提供将自动生成）
 
     返回:
     - 成功: HTML分析报告文件
@@ -103,8 +104,16 @@ async def analyze_excel(request: Request):
             temp_file_path = temp_file.name
 
         try:
+            # 获取uid参数（可选），如果没有则生成一个
+            uid = request.form.get("uid") if request.form else None
+            if not uid:
+                import uuid
+
+                uid = f"user_{uuid.uuid4().hex[:8]}"
+                print(f"Generated uid: {uid}")
+
             # 使用demo.py中的函数生成HTML报告
-            html_report_path = await generate_html_from_excel(temp_file_path)
+            html_report_path = await generate_html_from_excel(temp_file_path, uid)
 
             # 读取生成的HTML文件
             with open(html_report_path, "r", encoding="utf-8") as f:
@@ -144,6 +153,7 @@ async def analyze_excel_download(request: Request):
 
     请求参数:
     - file: Excel文件 (.xlsx 或 .xls)
+    - uid: 用户ID（可选，用于区分不同的聊天会话，如果不提供将自动生成）
 
     返回:
     - 成功: 下载链接
@@ -187,8 +197,16 @@ async def analyze_excel_download(request: Request):
             temp_file_path = temp_file.name
 
         try:
+            # 获取uid参数（可选），如果没有则生成一个
+            uid = request.form.get("uid") if request.form else None
+            if not uid:
+                import uuid
+
+                uid = f"user_{uuid.uuid4().hex[:8]}"
+                print(f"Generated uid: {uid}")
+
             # 使用demo.py中的函数生成HTML报告
-            html_report_path = await generate_html_from_excel(temp_file_path)
+            html_report_path = await generate_html_from_excel(temp_file_path, uid)
 
             # 获取文件名
             report_filename = os.path.basename(html_report_path)
