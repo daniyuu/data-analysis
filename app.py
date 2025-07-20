@@ -1,5 +1,5 @@
-from sanic import Sanic, Request, response
-from sanic.response import json, file
+from sanic import Sanic, Request
+from sanic.response import json, file, html
 import os
 from dotenv import load_dotenv
 
@@ -126,7 +126,7 @@ async def analyze_excel(request: Request):
             report_filename = os.path.basename(html_report_path)
 
             # 返回HTML文件
-            return response.html(
+            return html(
                 html_content,
                 headers={
                     "Content-Disposition": f'attachment; filename="{report_filename}"',
@@ -289,16 +289,16 @@ async def analyze_by_file_url(request: Request):
         with tempfile.NamedTemporaryFile(
             delete=False, suffix=file_extension
         ) as temp_file:
-            response = requests.get(file_url, stream=True)
-            if response.status_code != 200:
+            file_response = requests.get(file_url, stream=True)
+            if file_response.status_code != 200:
                 return json(
                     {
                         "error": "文件下载失败",
-                        "message": f"从URL下载文件失败: {response.status_code}",
+                        "message": f"从URL下载文件失败: {file_response.status_code}",
                     },
                     status=500,
                 )
-            for chunk in response.iter_content(chunk_size=8192):
+            for chunk in file_response.iter_content(chunk_size=8192):
                 temp_file.write(chunk)
             temp_file_path = temp_file.name
 
@@ -314,7 +314,7 @@ async def analyze_by_file_url(request: Request):
             report_filename = os.path.basename(html_report_path)
 
             # 返回HTML文件
-            return response.html(
+            return html(
                 html_content,
                 headers={
                     "Content-Disposition": f'attachment; filename="{report_filename}"',

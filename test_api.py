@@ -156,10 +156,10 @@ def test_analyze_by_file_url(host):
 
 
 if __name__ == "__main__":
-    # host = "http://localhost:8000"
-    host = (
-        "https://data-analysis-0719-crhmezfyhmfwcjhq.canadacentral-01.azurewebsites.net"
-    )
+    host = "http://localhost:8000"
+    # host = (
+    #     "https://data-analysis-0719-crhmezfyhmfwcjhq.canadacentral-01.azurewebsites.net"
+    # )
     # test_azure_api(host)
 
     # 测试新的 analyze_by_file_url 接口
